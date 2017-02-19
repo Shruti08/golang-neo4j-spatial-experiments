@@ -9,13 +9,17 @@ import (
 	"log"
 	"encoding/json"
 	_ "gopkg.in/cq.v1"
-
 )
 
 func logMessage(logMsg string) {
 	log.Printf(logMsg)
 }
-
+/*
+WITH 19.127586 AS lat, 72.845009 AS lon
+MATCH (l:User)
+WHERE 2 * 6371 * asin(sqrt(haversin(radians(lat - toFloat(l.lat) ))+ cos(radians(lat))* cos(radians(toFloat(l.lat) ))* haversin(radians(lon - toFloat(l.lon) )))) < 40.0
+RETURN l
+*/
 func parseJson(c echo.Context) (map[string]string, bool) {
 	methodSource := " MethodSource : parseJson."
 	s, errRead := ioutil.ReadAll(c.Request().Body)
@@ -42,30 +46,24 @@ func createNode(jsonBody map[string]string) bool {
 	}
 	defer db.Close()
 
-	stmt,err :=db.Prepare(`CREATE (user:User {0})`)
+	stmt, err := db.Prepare(`CREATE (user:User {0})`)
 
-
-	if err!=nil{
-		logMessage(methodSource+"Error Preparing Query.Desc: "+err.Error())
+	if err != nil {
+		logMessage(methodSource + "Error Preparing Query.Desc: " + err.Error())
 		return false
 	}
 	defer stmt.Close()
 
+	rows, err := stmt.Exec(jsonBody)
 
-          rows,err := stmt.Exec(jsonBody)
-
-
-
-	if err!=nil {
-		logMessage(methodSource+"Error Adding Parameters.Desc: "+err.Error())
+	if err != nil {
+		logMessage(methodSource + "Error Adding Parameters.Desc: " + err.Error())
 		return false
 	}
 	//defer rows.Close()
-	rowsAffected,err:=rows.RowsAffected()
-	lastInsertId,err:=rows.LastInsertId()
-	logMessage("Rows Affected: "+string(rowsAffected)+".Last Insert Id: "+string(lastInsertId))
-
-
+	rowsAffected, err := rows.RowsAffected()
+	lastInsertId, err := rows.LastInsertId()
+	logMessage("Rows Affected: " + string(rowsAffected) + ".Last Insert Id: " + string(lastInsertId))
 
 	return true
 }
