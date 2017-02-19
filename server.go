@@ -16,23 +16,23 @@ func logMessage(logMsg string) {
 	log.Printf(logMsg)
 }
 
-func parseJson(c echo.Context) (map[string]interface{}, bool) {
+func parseJson(c echo.Context) (map[string]string, bool) {
 	methodSource := " MethodSource : parseJson."
 	s, errRead := ioutil.ReadAll(c.Request().Body)
 	if errRead != nil {
 		logMessage(methodSource + "Error while reading from request.Desc: " + errRead.Error())
-		return map[string]interface{}{}, false
+		return map[string]string{}, false
 	}
-	jsonBody := map[string]interface{}{}
+	jsonBody := map[string]string{}
 	errParse := json.Unmarshal([]byte(s), &jsonBody)
 	if errParse != nil {
 		logMessage(methodSource + "Error while Parsing to Json. Desc: " + errParse.Error())
-		return map[string]interface{}{}, false
+		return map[string]string{}, false
 	}
 	return jsonBody, true;
 }
 
-func createNode(jsonBody map[string]interface{}) bool {
+func createNode(jsonBody map[string]string) bool {
 	methodSource := " MethodSource : createNode."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
 	err = db.Ping()
@@ -42,9 +42,8 @@ func createNode(jsonBody map[string]interface{}) bool {
 	}
 	defer db.Close()
 
-	stmt,err := db.Prepare(`
-	CREATE (user:User {0} )
-	`)
+	stmt,err :=db.Prepare(`CREATE (user:User {0})`)
+
 
 	if err!=nil{
 		logMessage(methodSource+"Error Preparing Query.Desc: "+err.Error())
@@ -53,8 +52,8 @@ func createNode(jsonBody map[string]interface{}) bool {
 	defer stmt.Close()
 
 
+          rows,err := stmt.Exec(jsonBody)
 
-	rows,err := stmt.Exec(jsonBody)
 
 
 	if err!=nil {
