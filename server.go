@@ -90,7 +90,7 @@ func main() {
 	e := echo.New()
 
 	e.GET("/", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, c.Request().Body)
+		return c.String(http.StatusOK, "HELLO FROM API")
 	})
 
 	e.POST("/users", createUser)
