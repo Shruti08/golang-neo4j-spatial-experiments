@@ -35,7 +35,6 @@ func parseJson(c echo.Context) (map[string]string, bool) {
 	}
 	return jsonBody, true;
 }
-
 func createNode(jsonBody map[string]string) bool {
 	methodSource := " MethodSource : createNode."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
@@ -46,7 +45,12 @@ func createNode(jsonBody map[string]string) bool {
 	}
 	defer db.Close()
 
-	stmt, err := db.Prepare(`CREATE (user:User {0})`)
+	stmt, err := db.Prepare(`CREATE (user:User {0})
+				 WITH count(*) as dummy
+				 MATCH(n:User) SET n.lat = toFloat(n.lat),n.lon=toFloat(n.lon)
+				 WITH count(*) as dummy
+	                         MATCH (n:User) with n CALL spatial.addNode('geoLocation',n) YIELD node RETURN node;
+	                         `)
 
 	if err != nil {
 		logMessage(methodSource + "Error Preparing Query.Desc: " + err.Error())
@@ -67,6 +71,7 @@ func createNode(jsonBody map[string]string) bool {
 
 	return true
 }
+
 
 func createUser(c echo.Context) error {
 	jsonBody, errParse := parseJson(c)
