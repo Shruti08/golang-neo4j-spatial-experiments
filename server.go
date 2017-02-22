@@ -1,95 +1,10 @@
 package main
 
 import (
-	"database/sql"
 	"net/http"
 	"github.com/labstack/echo"
-	"github.com/satori/go.uuid"
-	"io/ioutil"
-	"log"
-	"encoding/json"
 	_ "gopkg.in/cq.v1"
 )
-
-func logMessage(logMsg string) {
-	log.Printf(logMsg)
-}
-/*
-WITH 19.127586 AS lat, 72.845009 AS lon
-MATCH (l:User)
-WHERE 2 * 6371 * asin(sqrt(haversin(radians(lat - toFloat(l.lat) ))+ cos(radians(lat))* cos(radians(toFloat(l.lat) ))* haversin(radians(lon - toFloat(l.lon) )))) < 40.0
-RETURN l
-*/
-func parseJson(c echo.Context) (map[string]string, bool) {
-	methodSource := " MethodSource : parseJson."
-	s, errRead := ioutil.ReadAll(c.Request().Body)
-	if errRead != nil {
-		logMessage(methodSource + "Error while reading from request.Desc: " + errRead.Error())
-		return map[string]string{}, false
-	}
-	jsonBody := map[string]string{}
-	errParse := json.Unmarshal([]byte(s), &jsonBody)
-	if errParse != nil {
-		logMessage(methodSource + "Error while Parsing to Json. Desc: " + errParse.Error())
-		return map[string]string{}, false
-	}
-	return jsonBody, true;
-}
-func createNode(jsonBody map[string]string) bool {
-	methodSource := " MethodSource : createNode."
-	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
-	err = db.Ping()
-	if err != nil {
-		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
-		return false
-	}
-	defer db.Close()
-
-	stmt, err := db.Prepare(`CREATE (user:User {0})
-				 WITH count(*) AS dummy
-				 MATCH(n:User) WHERE n.uid = {1} SET n.lat = toFloat(n.lat),n.lon=toFloat(n.lon)
-				 WITH count(*) AS dummy
-	                         MATCH (n:User) WHERE n.uid = {2} WITH n CALL spatial.addNode('geoLocation',n) YIELD node RETURN node;
-	                         `)
-
-	if err != nil {
-		logMessage(methodSource + "Error Preparing Query.Desc: " + err.Error())
-		return false
-	}
-	defer stmt.Close()
-
-	rows, err := stmt.Exec(jsonBody,jsonBody["uid"],jsonBody["uid"])
-
-	if err != nil {
-		logMessage(methodSource + "Error Adding Parameters.Desc: " + err.Error())
-		return false
-	}
-	//defer rows.Close()
-	rowsAffected, err := rows.RowsAffected()
-	lastInsertId, err := rows.LastInsertId()
-	logMessage("Rows Affected: " + string(rowsAffected) + ".Last Insert Id: " + string(lastInsertId))
-
-	return true
-}
-
-
-func createUser(c echo.Context) error {
-	jsonBody, errParse := parseJson(c)
-	if !errParse {
-		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
-	}
-	u2 := uuid.NewV4()
-	jsonBody["uid"] = u2.String()
-	if createNode(jsonBody) {
-		logMessage("NODE CREATED SUCCESSFULLY")
-	} else {
-		logMessage("NODE CREATION FAILED")
-		return c.JSON(http.StatusInternalServerError, jsonBody)
-	}
-	logMessage("NEW ID " + u2.String())
-	return c.JSON(http.StatusOK, jsonBody)
-
-}
 
 func main() {
 	e := echo.New()
