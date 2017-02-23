@@ -30,7 +30,7 @@ func createNode(jsonBody map[string]string) bool {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Exec(jsonBody,jsonBody["uid"],jsonBody["uid"])
+	rows, err := stmt.Exec(jsonBody, jsonBody["uid"], jsonBody["uid"])
 
 	if err != nil {
 		logMessage(methodSource + "Error Adding Parameters.Desc: " + err.Error())
@@ -43,7 +43,6 @@ func createNode(jsonBody map[string]string) bool {
 
 	return true
 }
-
 
 func createUser(c echo.Context) error {
 	jsonBody, errParse := parseJson(c)

@@ -1,6 +1,6 @@
 package main
 
-import(
+import (
 	"log"
 	"github.com/labstack/echo"
 	"io/ioutil"
