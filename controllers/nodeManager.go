@@ -1,13 +1,10 @@
 package controllers
 
 import (
-	"github.com/labstack/echo"
-	"net/http"
-	"github.com/satori/go.uuid"
 	"database/sql"
 )
 
-func createNode(jsonBody map[string]string) bool {
+func createUserNode(jsonBody map[string]string) bool {
 	methodSource := " MethodSource : createNode."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
 	err = db.Ping()
@@ -42,22 +39,4 @@ func createNode(jsonBody map[string]string) bool {
 	logMessage("Rows Affected: " + string(rowsAffected) + ".Last Insert Id: " + string(lastInsertId))
 
 	return true
-}
-
-func CreateUser(c echo.Context) error {
-	jsonBody, errParse := parseJson(c)
-	if !errParse {
-		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
-	}
-	u2 := uuid.NewV4()
-	jsonBody["uid"] = u2.String()
-	if createNode(jsonBody) {
-		logMessage("NODE CREATED SUCCESSFULLY")
-	} else {
-		logMessage("NODE CREATION FAILED")
-		return c.JSON(http.StatusInternalServerError, jsonBody)
-	}
-	logMessage("NEW ID " + u2.String())
-	return c.JSON(http.StatusOK, jsonBody)
-
 }
