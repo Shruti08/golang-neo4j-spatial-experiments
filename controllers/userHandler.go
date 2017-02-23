@@ -1,4 +1,4 @@
-package main
+package controllers
 
 import (
 	"github.com/labstack/echo"
@@ -44,7 +44,7 @@ func createNode(jsonBody map[string]string) bool {
 	return true
 }
 
-func createUser(c echo.Context) error {
+func CreateUser(c echo.Context) error {
 	jsonBody, errParse := parseJson(c)
 	if !errParse {
 		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
