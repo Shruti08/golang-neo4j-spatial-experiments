@@ -5,13 +5,22 @@ import (
 	"net/http"
 	"github.com/satori/go.uuid"
 )
+func userExists(json map[string]string) bool {
 
 
+	return false;
+
+}
 func CreateUser(c echo.Context) error {
 	jsonBody, errParse := parseJson(c)
 	if !errParse {
 		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
 	}
+
+	if userExists(jsonBody){
+		return c.JSON(http.StatusConflict,"User Already Exisits");
+	}
+
 	u2 := uuid.NewV4()
 	jsonBody["uid"] = u2.String()
 	if createUserNode(jsonBody) {
