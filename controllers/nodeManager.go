@@ -5,7 +5,7 @@ import (
 )
 
 func createUserNode(jsonBody map[string]string) bool {
-	methodSource := " MethodSource : createNode."
+	methodSource := " MethodSource : createUserNode."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
 	err = db.Ping()
 	if err != nil {
@@ -30,7 +30,7 @@ func createUserNode(jsonBody map[string]string) bool {
 	rows, err := stmt.Exec(jsonBody, jsonBody["uid"], jsonBody["uid"])
 
 	if err != nil {
-		logMessage(methodSource + "Error Adding Parameters.Desc: " + err.Error())
+		logMessage(methodSource + "Error executing query for user creation.Desc: " + err.Error())
 		return false
 	}
 	//defer rows.Close()

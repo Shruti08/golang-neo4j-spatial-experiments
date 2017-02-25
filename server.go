@@ -14,6 +14,7 @@ func main() {
 		return c.String(http.StatusOK, "HELLO FROM API")
 	})
 
-	e.POST("/users", controllers.CreateUser)
+	e.POST("/createUser", controllers.CreateUser)
+	e.POST("/checkUserLogin", controllers.CheckUserLogin)
 	e.Logger.Fatal(e.Start(":8000"))
 }
