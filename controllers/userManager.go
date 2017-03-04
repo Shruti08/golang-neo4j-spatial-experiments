@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"github.com/satori/go.uuid"
 	"database/sql"
-
 	"github.com/labstack/gommon/log"
 	"github.com/go-cq/cq/types"
 )
@@ -72,8 +71,32 @@ func CheckUserLogin(c echo.Context) error {
 	}
 	return c.JSON(http.StatusNotFound, "New User")
 }
-
+//TODO: COMPLETE THE FOLLOWING FOR USER CHECK DURING CREATION
 func userExists(json map[string]string) bool {
+	methodSource := " MethodSource : userExists."
+	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	err = db.Ping()
+	if err != nil {
+		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
+		return false
+	}
+	defer db.Close()
+	stmt, err := db.Prepare(`MATCH (n:User)
+			       WHERE (n.fbid = {0} OR n.gpid={1})
+			       RETURN n
+			       LIMIT 1`)
+
+	if err != nil {
+		logMessage(methodSource + "Error Preparing Query.Desc: " + err.Error())
+		return false
+	}
+	defer stmt.Close()
+
+	rows,err := stmt.Query(json["fbid"],json["gpid"])
+
+	for rows.Next(){
+		return true;
+	}
 
 	return false;
 
