@@ -6,18 +6,20 @@ import (
 	"github.com/satori/go.uuid"
 	"database/sql"
 	"github.com/labstack/gommon/log"
+
+	"github.com/mitchellh/mapstructure"
 )
 
 type singleUserResponse struct {
 	StatusCode int64 `json:"statusCode"`
 	Success    bool `json:"success"`
-	Message    string `json:"Message"`
+	Message    string `json:"message"`
 	Data       User `json:"data"`
 }
 type multiUserResponse struct {
 	StatusCode int64 `json:"statusCode"`
 	Success    bool `json:"success"`
-	Message    string `json:"Message"`
+	Message    string `json:"message"`
 	Data       []User `json:"data"`
 }
 
@@ -39,6 +41,7 @@ type User struct {
 	MobileNo       string `json:"mobileNo"`
 }
 
+// CHECK USER LOGIN
 func userLoginExists(json map[string]string) (bool, *User) {
 	result := new(User)
 	methodSource := " MethodSource : userLoginExists."
@@ -139,7 +142,11 @@ func CheckUserLogin(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, response)
 }
-//TODO: COMPLETE THE FOLLOWING FOR USER CHECK DURING CREATION
+
+
+
+
+//CREATE USER
 func userExists(json map[string]string) bool {
 	methodSource := " MethodSource : userExists."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
@@ -187,7 +194,16 @@ func CreateUser(c echo.Context) error {
 		logMessage("NODE CREATION FAILED")
 		return c.JSON(http.StatusInternalServerError, jsonBody)
 	}
+	response := new(singleUserResponse)
+	response.StatusCode=200
+	response.Success=true
+	response.Message="User Created Successfully !"
+
+	user := new(User)
+	//user,_ = GetUserFromJSON(jsonBody)
+	mapstructure.Decode(jsonBody,user)
+	response.Data=*user
 	logMessage("NEW ID " + u2.String())
-	return c.JSON(http.StatusCreated, jsonBody)
+	return c.JSON(http.StatusCreated, response)
 
 }
