@@ -17,7 +17,6 @@ func CreateAddInterests(c echo.Context) error {
 	}
 
 	for _, interest := range user.Interests {
-
 		created := createInterestNode(interest)
 		if (!created) {
 			logMessage(methodSource + "Error Creating Interest Node.")
@@ -26,7 +25,6 @@ func CreateAddInterests(c echo.Context) error {
 			success = false
 
 		}
-
 		added := createInterestRelationship(user.Uid, interest)
 		if (!added) {
 			logMessage(methodSource + "Error Adding Relationship.")

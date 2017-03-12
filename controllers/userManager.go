@@ -8,8 +8,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"realworld/Model"
 )
-
-// CHECK USER LOGIN
 func userLoginExists(json map[string]string) (bool, *Model.User) {
 	result := new(Model.User)
 	methodSource := " MethodSource : userLoginExists."
@@ -115,7 +113,7 @@ func userExists(json map[string]string) bool {
 	}
 	defer db.Close()
 	stmt, err := db.Prepare(`MATCH (n:User)
-			       WHERE (n.fbid = {0} OR n.gpid={1})
+			       WHERE (n.fbid = {0} OR n.gpid={1} OR n.mobileNo={2})
 			       RETURN n
 			       LIMIT 1`)
 
@@ -125,39 +123,45 @@ func userExists(json map[string]string) bool {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(json["fbid"], json["gpid"])
+	rows, err := stmt.Query(json["fbid"], json["gpid"],json["mobileNo"])
 
 	for rows.Next() {
 		return true;
 	}
 	return false;
-
 }
 func CreateUser(c echo.Context) error {
 	jsonBody, errParse := parseJson(c)
+	var message string
+	statusCode :=int64(200)
+	success:=true
 	if !errParse {
 		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
 	}
 	if userExists(jsonBody) {
-		return c.JSON(http.StatusConflict, "User Already Exisits");
-	}
-	var message string
-	u2 := uuid.NewV4()
-	jsonBody["uid"] = u2.String()
-	if createUserNode(jsonBody) {
-		message += "User Created Successfully !"
-		logMessage(message)
-	} else {
-		logMessage("NODE CREATION FAILED")
-		return c.JSON(http.StatusInternalServerError, jsonBody)
+		success =false
+		statusCode=201
+		message="User Already Exists"
+	}else {
+		u2 := uuid.NewV4()
+		jsonBody["uid"] = u2.String()
+		if createUserNode(jsonBody) {
+			message += "User Created Successfully !"
+			logMessage(message)
+		} else {
+			logMessage("NODE CREATION FAILED")
+			return c.JSON(http.StatusInternalServerError, jsonBody)
+		}
+		logMessage("NEW ID " + u2.String())
 	}
 	response := new(Model.SingleUserResponse)
-	response.StatusCode = 200
-	response.Success = true
+	response.StatusCode = statusCode
+	response.Success = success
 	response.Message = message
-	user := new(Model.User)
-	mapstructure.Decode(jsonBody, user)
-	response.Data = *user
-	logMessage("NEW ID " + u2.String())
+	if(success){
+		user := new(Model.User)
+		mapstructure.Decode(jsonBody, user)
+		response.Data = *user
+	}
 	return c.JSON(http.StatusCreated, response)
 }

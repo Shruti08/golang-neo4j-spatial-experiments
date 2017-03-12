@@ -17,17 +17,13 @@ func createInterestNode(interest string) bool {
 		return false
 	}
 	defer stmt.Close()
-
 	_, errExec := stmt.Exec(interest)
-
 	if errExec != nil {
 
 		logMessage(methodSource + "Error executing query for Interest creation.Desc: " + errExec.Error())
 		return false
 	}
-
 	return true
-
 }
 func createUserNode(jsonBody map[string]string) bool {
 	methodSource := " MethodSource : createUserNode."

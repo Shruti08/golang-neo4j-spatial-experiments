@@ -17,14 +17,10 @@ func createInterestRelationship(uid string, interest string) bool {
 		return false
 	}
 	defer stmt.Close()
-	rows, errExec := stmt.Exec(uid,interest,relationshipProperty())
+	_, errExec := stmt.Exec(uid,interest,relationshipProperty())
 	if errExec != nil {
 		logMessage(methodSource + "Error executing query for Interest creation.Desc: " + errExec.Error())
 		return false
 	}
-	rowsAffected, err := rows.RowsAffected()
-	lastInsertId, err := rows.LastInsertId()
-	logMessage("Rows Affected: " + string(rowsAffected) + ".Last Insert Id: " + string(lastInsertId))
 	return true
-
 }
