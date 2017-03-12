@@ -40,6 +40,24 @@ type User struct {
 	DeviceToken    string `json:"deviceToken"`
 	MobileNo       string `json:"mobileNo"`
 }
+type UserInterest struct {
+	Name           string `json:"name"`
+	Uid            string `json:"uid"`
+	Fbid           string `json:"fbid"`
+	Gpid           string `json:"gpid"`
+	Email          string `json:"email"`
+	Age            string `json:"age"`
+	Dob            string `json:"dob"`
+	Gender         string `json:"Gender"`
+	Lat            float64 `json:"lat"`
+	Lon            float64 `json:"lon"`
+	CreatedOn      string `json:"createdOn"`
+	LastUpdateOn   string `json:"lastUpdateOn"`
+	ProfilePicture string `json:"profilePicture"`
+	DeviceToken    string `json:"deviceToken"`
+	MobileNo       string `json:"mobileNo"`
+	Interest       []string `json:"interest"`
+}
 
 // CHECK USER LOGIN
 func userLoginExists(json map[string]string) (bool, *User) {
@@ -139,14 +157,31 @@ func CheckUserLogin(c echo.Context) error {
 	response.StatusCode = 201
 	response.Message = "New User"
 	response.Success = true
-
 	return c.JSON(http.StatusOK, response)
 }
 
 
 
 
-//CREATE USER
+//CREATE USER AND ADD/CREATE INTERESTS
+
+func CreateAddInterests(uid string, interests []string) (bool, bool) {
+	methodSource := " MethodSource : createAddInterests."
+	for _, v := range interests {
+
+		create := createInterestNode(v)
+		if (!create) {
+			logMessage(methodSource + "Error Creating Interest Node.")
+			return false,true
+		}
+		add := createInterestRelationship(uid, v)
+		if (!add) {
+			logMessage(methodSource + "Error Adding Relationship.")
+			return false,true
+		}
+	}
+	return true, false
+}
 func userExists(json map[string]string) bool {
 	methodSource := " MethodSource : userExists."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
@@ -181,29 +216,26 @@ func CreateUser(c echo.Context) error {
 	if !errParse {
 		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
 	}
-
 	if userExists(jsonBody) {
 		return c.JSON(http.StatusConflict, "User Already Exisits");
 	}
-
+	var message string
 	u2 := uuid.NewV4()
 	jsonBody["uid"] = u2.String()
 	if createUserNode(jsonBody) {
-		logMessage("NODE CREATED SUCCESSFULLY")
+		message += "User Created Successfully !"
+		logMessage(message)
 	} else {
 		logMessage("NODE CREATION FAILED")
 		return c.JSON(http.StatusInternalServerError, jsonBody)
 	}
 	response := new(singleUserResponse)
-	response.StatusCode=200
-	response.Success=true
-	response.Message="User Created Successfully !"
-
+	response.StatusCode = 200
+	response.Success = true
+	response.Message = message
 	user := new(User)
-	//user,_ = GetUserFromJSON(jsonBody)
-	mapstructure.Decode(jsonBody,user)
-	response.Data=*user
+	mapstructure.Decode(jsonBody, user)
+	response.Data = *user
 	logMessage("NEW ID " + u2.String())
 	return c.JSON(http.StatusCreated, response)
-
 }

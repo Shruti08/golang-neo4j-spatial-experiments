@@ -20,10 +20,11 @@ func parseJson(c echo.Context) (map[string]string, bool) {
 		return map[string]string{}, false
 	}
 	jsonBody := map[string]string{}
+
 	errParse := json.Unmarshal([]byte(s), &jsonBody)
-	if errParse != nil {
+	if errParse != nil{
 		logMessage(methodSource + "Error while Parsing to Json. Desc: " + errParse.Error())
 		return map[string]string{}, false
 	}
-	return jsonBody, true;
+	return jsonBody, true
 }
