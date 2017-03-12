@@ -1,9 +1,7 @@
 package controllers
-
 import (
 	"database/sql"
 )
-
 func createInterestNode(interest string) bool {
 	methodSource := " MethodSource : createInterestNode."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
@@ -19,14 +17,15 @@ func createInterestNode(interest string) bool {
 		return false
 	}
 	defer stmt.Close()
-	rows, errExec := stmt.Exec(interest)
+
+	_, errExec := stmt.Exec(interest)
+
 	if errExec != nil {
-		logMessage(methodSource + "Error executing query for Interest creation.Desc: " + err.Error())
+
+		logMessage(methodSource + "Error executing query for Interest creation.Desc: " + errExec.Error())
 		return false
 	}
-	rowsAffected, err := rows.RowsAffected()
-	lastInsertId, err := rows.LastInsertId()
-	logMessage("Rows Affected: " + string(rowsAffected) + ".Last Insert Id: " + string(lastInsertId))
+
 	return true
 
 }

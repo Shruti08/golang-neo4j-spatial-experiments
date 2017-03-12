@@ -1,67 +1,17 @@
 package controllers
-
 import (
 	"github.com/labstack/echo"
 	"net/http"
 	"github.com/satori/go.uuid"
 	"database/sql"
 	"github.com/labstack/gommon/log"
-
 	"github.com/mitchellh/mapstructure"
+	"realworld/Model"
 )
 
-type singleUserResponse struct {
-	StatusCode int64 `json:"statusCode"`
-	Success    bool `json:"success"`
-	Message    string `json:"message"`
-	Data       User `json:"data"`
-}
-type multiUserResponse struct {
-	StatusCode int64 `json:"statusCode"`
-	Success    bool `json:"success"`
-	Message    string `json:"message"`
-	Data       []User `json:"data"`
-}
-
-type User struct {
-	Name           string `json:"name"`
-	Uid            string `json:"uid"`
-	Fbid           string `json:"fbid"`
-	Gpid           string `json:"gpid"`
-	Email          string `json:"email"`
-	Age            string `json:"age"`
-	Dob            string `json:"dob"`
-	Gender         string `json:"Gender"`
-	Lat            float64 `json:"lat"`
-	Lon            float64 `json:"lon"`
-	CreatedOn      string `json:"createdOn"`
-	LastUpdateOn   string `json:"lastUpdateOn"`
-	ProfilePicture string `json:"profilePicture"`
-	DeviceToken    string `json:"deviceToken"`
-	MobileNo       string `json:"mobileNo"`
-}
-type UserInterest struct {
-	Name           string `json:"name"`
-	Uid            string `json:"uid"`
-	Fbid           string `json:"fbid"`
-	Gpid           string `json:"gpid"`
-	Email          string `json:"email"`
-	Age            string `json:"age"`
-	Dob            string `json:"dob"`
-	Gender         string `json:"Gender"`
-	Lat            float64 `json:"lat"`
-	Lon            float64 `json:"lon"`
-	CreatedOn      string `json:"createdOn"`
-	LastUpdateOn   string `json:"lastUpdateOn"`
-	ProfilePicture string `json:"profilePicture"`
-	DeviceToken    string `json:"deviceToken"`
-	MobileNo       string `json:"mobileNo"`
-	Interest       []string `json:"interest"`
-}
-
 // CHECK USER LOGIN
-func userLoginExists(json map[string]string) (bool, *User) {
-	result := new(User)
+func userLoginExists(json map[string]string) (bool, *Model.User) {
+	result := new(Model.User)
 	methodSource := " MethodSource : userLoginExists."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
 	err = db.Ping()
@@ -70,7 +20,6 @@ func userLoginExists(json map[string]string) (bool, *User) {
 		return false, result
 	}
 	defer db.Close()
-
 	stmt, err := db.Prepare(`MATCH (n:User)
 			       WHERE (n.fbid = {0} OR n.gpid={1})
 			       RETURN
@@ -94,7 +43,6 @@ func userLoginExists(json map[string]string) (bool, *User) {
 		logMessage(methodSource + "Error Preparing Query.Desc: " + err.Error())
 		return false, result
 	}
-
 	defer stmt.Close()
 
 	rows, err := stmt.Query(json["sid"], json["sid"])
@@ -104,7 +52,6 @@ func userLoginExists(json map[string]string) (bool, *User) {
 		return false, result
 	}
 	defer rows.Close()
-
 	for rows.Next() {
 
 		errScanner := rows.Scan(&result.Name,
@@ -136,7 +83,6 @@ func userLoginExists(json map[string]string) (bool, *User) {
 		return false, result
 	}
 	return true, result
-
 }
 func CheckUserLogin(c echo.Context) error {
 	methodSource := " MethodSource : CheckUserLogin."
@@ -146,7 +92,7 @@ func CheckUserLogin(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
 	}
 	exists, user := userLoginExists(jsonBody)
-	response := new(singleUserResponse)
+	response := new(Model.SingleUserResponse)
 	if exists {
 		response.StatusCode = 200
 		response.Message = "User Already Exists - Logged In !"
@@ -158,29 +104,6 @@ func CheckUserLogin(c echo.Context) error {
 	response.Message = "New User"
 	response.Success = true
 	return c.JSON(http.StatusOK, response)
-}
-
-
-
-
-//CREATE USER AND ADD/CREATE INTERESTS
-
-func CreateAddInterests(uid string, interests []string) (bool, bool) {
-	methodSource := " MethodSource : createAddInterests."
-	for _, v := range interests {
-
-		create := createInterestNode(v)
-		if (!create) {
-			logMessage(methodSource + "Error Creating Interest Node.")
-			return false,true
-		}
-		add := createInterestRelationship(uid, v)
-		if (!add) {
-			logMessage(methodSource + "Error Adding Relationship.")
-			return false,true
-		}
-	}
-	return true, false
 }
 func userExists(json map[string]string) bool {
 	methodSource := " MethodSource : userExists."
@@ -207,7 +130,6 @@ func userExists(json map[string]string) bool {
 	for rows.Next() {
 		return true;
 	}
-
 	return false;
 
 }
@@ -229,11 +151,11 @@ func CreateUser(c echo.Context) error {
 		logMessage("NODE CREATION FAILED")
 		return c.JSON(http.StatusInternalServerError, jsonBody)
 	}
-	response := new(singleUserResponse)
+	response := new(Model.SingleUserResponse)
 	response.StatusCode = 200
 	response.Success = true
 	response.Message = message
-	user := new(User)
+	user := new(Model.User)
 	mapstructure.Decode(jsonBody, user)
 	response.Data = *user
 	logMessage("NEW ID " + u2.String())
