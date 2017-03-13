@@ -103,45 +103,60 @@ func CheckUserLogin(c echo.Context) error {
 	response.Success = true
 	return c.JSON(http.StatusOK, response)
 }
-func userExists(json map[string]string) bool {
+func userExists(json map[string]string) (bool,string,int64,bool) {
 	methodSource := " MethodSource : userExists."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
-		return false
+		return false,"",900,false
 	}
 	defer db.Close()
+	var fbid,gpid,mobileNo,email string
 	stmt, err := db.Prepare(`MATCH (n:User)
-			       WHERE (n.fbid = {0} OR n.gpid={1} OR n.mobileNo={2})
-			       RETURN n
+			       WHERE (n.fbid = {0} OR n.gpid={1} OR n.mobileNo={2} OR n.email={3})
+			       RETURN n.fbid,n.gpid,n.mobileNo,n.email
 			       LIMIT 1`)
-
 	if err != nil {
 		logMessage(methodSource + "Error Preparing Query.Desc: " + err.Error())
-		return false
+		return false,"",901,false
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(json["fbid"], json["gpid"],json["mobileNo"])
+	rows, err := stmt.Query(json["fbid"], json["gpid"],json["mobileNo"],json["email"])
 
 	for rows.Next() {
-		return true;
+		errScanner := rows.Scan(&fbid,&gpid,&mobileNo,&email)
+		if errScanner != nil {
+			logMessage(methodSource + "Error Checking for User.Desc: " + errScanner.Error())
+			return false,"",902,false
+		}
 	}
-	return false;
+	if (fbid !=""&&fbid==json["fbid"]) || (gpid!=""&&gpid==json["gpid"]){
+		return true,"social",302,true
+	}else if email!="" && email==json["email"] {
+		return true,"email",300,true
+	}else if mobileNo!="" && mobileNo==json["mobileNo"] {
+		return true,"mobileNo",301,true
+	}
+	return false,"",200,true;
 }
 func CreateUser(c echo.Context) error {
 	jsonBody, errParse := parseJson(c)
 	var message string
-	statusCode :=int64(200)
 	success:=true
 	if !errParse {
 		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
 	}
-	if userExists(jsonBody) {
+	exists,field,statusCode,methodSuccess := userExists(jsonBody)
+	if !methodSuccess{
+		success=false
+		statusCode=statusCode
+		message="Something Went Wrong."
+	}else if exists {
 		success =false
-		statusCode=201
-		message="User Already Exists"
+		statusCode=statusCode
+		message="User Already Exists. Duplicate "+field
 	}else {
 		u2 := uuid.NewV4()
 		jsonBody["uid"] = u2.String()
