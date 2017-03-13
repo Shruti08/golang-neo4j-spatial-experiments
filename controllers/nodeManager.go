@@ -1,7 +1,9 @@
 package controllers
+
 import (
 	"database/sql"
 )
+
 func createInterestNode(interest string) bool {
 	methodSource := " MethodSource : createInterestNode."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")

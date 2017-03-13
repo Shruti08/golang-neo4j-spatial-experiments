@@ -1,4 +1,5 @@
 package controllers
+
 import (
 	"log"
 	"github.com/labstack/echo"
@@ -6,10 +7,11 @@ import (
 	"encoding/json"
 	"realworld/Model"
 )
+
 func logMessage(logMsg string) {
 	log.Printf(logMsg)
 }
-func parseJsonInterests(c echo.Context) (Model.UserInterest,bool){
+func parseJsonInterests(c echo.Context) (Model.UserInterest, bool) {
 	methodSource := " MethodSource : parseJsonInterests."
 	s, errRead := ioutil.ReadAll(c.Request().Body)
 	if errRead != nil {
@@ -19,7 +21,7 @@ func parseJsonInterests(c echo.Context) (Model.UserInterest,bool){
 	jsonBody := new(Model.UserInterest)
 
 	errParse := json.Unmarshal([]byte(s), jsonBody)
-	if errParse != nil{
+	if errParse != nil {
 		logMessage(methodSource + "Error while Parsing to Interest Json. Desc: " + errParse.Error())
 		return *jsonBody, false
 	}
@@ -37,7 +39,7 @@ func parseJson(c echo.Context) (map[string]string, bool) {
 	jsonBody := map[string]string{}
 
 	errParse := json.Unmarshal([]byte(s), &jsonBody)
-	if errParse != nil{
+	if errParse != nil {
 		logMessage(methodSource + "Error while Parsing to Json. Desc: " + errParse.Error())
 		return map[string]string{}, false
 	}

@@ -4,16 +4,16 @@ import (
 	"github.com/labstack/echo"
 	"net/http"
 	"realworld/Model"
-
 )
+
 func CreateAddInterests(c echo.Context) error {
 	methodSource := " MethodSource : createAddInterests."
-	user,parsed := parseJsonInterests(c)
+	user, parsed := parseJsonInterests(c)
 	message := ""
 	statusCode := int64(200)
 	success := true
-	if(!parsed){
-		logMessage(methodSource+"Error Parsing User Interest JSON.")
+	if (!parsed) {
+		logMessage(methodSource + "Error Parsing User Interest JSON.")
 	}
 
 	for _, interest := range user.Interests {
@@ -21,7 +21,7 @@ func CreateAddInterests(c echo.Context) error {
 		if (!created) {
 			logMessage(methodSource + "Error Creating Interest Node.")
 			statusCode = 201
-			message +="\nError Creating Interest Node :"+interest
+			message += "\nError Creating Interest Node :" + interest
 			success = false
 
 		}
@@ -29,16 +29,16 @@ func CreateAddInterests(c echo.Context) error {
 		if (!added) {
 			logMessage(methodSource + "Error Adding Relationship.")
 			statusCode = 201
-			message +="\nError Adding To Relationship :"+interest
+			message += "\nError Adding To Relationship :" + interest
 			success = false
 		}
 	}
-	if message==""{
+	if message == "" {
 		message = "Successfully added Interests !!!"
 	}
-	response :=new(Model.SingleUserResponse)
+	response := new(Model.SingleUserResponse)
 	response.StatusCode = statusCode
 	response.Success = success
 	response.Message = message
-	return c.JSON(http.StatusOK,response)
+	return c.JSON(http.StatusOK, response)
 }

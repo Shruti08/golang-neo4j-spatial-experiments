@@ -1,5 +1,9 @@
 package controllers
-import ("database/sql")
+
+import (
+	"database/sql"
+)
+
 func createInterestRelationship(uid string, interest string) bool {
 	methodSource := " MethodSource : createInterestRelationship."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
@@ -17,7 +21,7 @@ func createInterestRelationship(uid string, interest string) bool {
 		return false
 	}
 	defer stmt.Close()
-	_, errExec := stmt.Exec(uid,interest,relationshipProperty())
+	_, errExec := stmt.Exec(uid, interest, relationshipProperty())
 	if errExec != nil {
 		logMessage(methodSource + "Error executing query for Interest creation.Desc: " + errExec.Error())
 		return false
