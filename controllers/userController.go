@@ -1,12 +1,8 @@
 package controllers
 
 import (
-	"github.com/labstack/echo"
-	"net/http"
-	"github.com/satori/go.uuid"
 	"database/sql"
 	"github.com/labstack/gommon/log"
-	"github.com/mitchellh/mapstructure"
 	"realworld/Model"
 )
 
@@ -84,27 +80,7 @@ func userLoginExists(json map[string]string) (bool, *Model.User) {
 	}
 	return true, result
 }
-func CheckUserLogin(c echo.Context) error {
-	methodSource := " MethodSource : CheckUserLogin."
-	jsonBody, errParse := parseJson(c)
-	if !errParse {
-		logMessage(methodSource + "Error Parsing Request.")
-		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
-	}
-	exists, user := userLoginExists(jsonBody)
-	response := new(Model.SingleUserResponse)
-	if exists {
-		response.StatusCode = 200
-		response.Message = "User Already Exists - Logged In !"
-		response.Success = true
-		response.Data = *user
-		return c.JSON(http.StatusOK, response)
-	}
-	response.StatusCode = 201
-	response.Message = "New User"
-	response.Success = true
-	return c.JSON(http.StatusOK, response)
-}
+
 func userExists(json map[string]string) (bool, string, int64, bool) {
 	methodSource := " MethodSource : userExists."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
@@ -142,43 +118,4 @@ func userExists(json map[string]string) (bool, string, int64, bool) {
 		return true, "mobileNo", 301, true
 	}
 	return false, "", 200, true;
-}
-func CreateUser(c echo.Context) error {
-	jsonBody, errParse := parseJson(c)
-	var message string
-	success := true
-	if !errParse {
-		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
-	}
-	exists, field, statusCode, methodSuccess := userExists(jsonBody)
-	if !methodSuccess {
-		success = false
-		statusCode = statusCode
-		message = "Something Went Wrong."
-	} else if exists {
-		success = false
-		statusCode = statusCode
-		message = "User Already Exists. Duplicate " + field
-	} else {
-		u2 := uuid.NewV4()
-		jsonBody["uid"] = u2.String()
-		if createUserNode(jsonBody) {
-			message += "User Created Successfully !"
-			logMessage(message)
-		} else {
-			logMessage("NODE CREATION FAILED")
-			return c.JSON(http.StatusInternalServerError, jsonBody)
-		}
-		logMessage("NEW ID " + u2.String())
-	}
-	response := new(Model.SingleUserResponse)
-	response.StatusCode = statusCode
-	response.Success = success
-	response.Message = message
-	if (success) {
-		user := new(Model.User)
-		mapstructure.Decode(jsonBody, user)
-		response.Data = *user
-	}
-	return c.JSON(http.StatusCreated, response)
 }

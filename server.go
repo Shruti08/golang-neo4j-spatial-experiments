@@ -14,6 +14,7 @@ func main() {
 	})
 	e.POST("/createUser", controllers.CreateUser)
 	e.POST("/checkUserLogin", controllers.CheckUserLogin)
-	e.POST("/addUserInterest", controllers.CreateAddInterests)
+	e.POST("/addUserInterests", controllers.CreateAddInterests)
+	e.POST("/getUserInterests", controllers.FetchInterests)
 	e.Logger.Fatal(e.Start(":8000"))
 }
