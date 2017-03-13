@@ -1,11 +1,9 @@
 package controllers
-
 import (
 	"database/sql"
 	"github.com/labstack/gommon/log"
 	"realworld/Model"
 )
-
 func userLoginExists(json map[string]string) (bool, *Model.User) {
 	result := new(Model.User)
 	methodSource := " MethodSource : userLoginExists."
@@ -40,9 +38,7 @@ func userLoginExists(json map[string]string) (bool, *Model.User) {
 		return false, result
 	}
 	defer stmt.Close()
-
 	rows, err := stmt.Query(json["sid"], json["sid"])
-
 	if err != nil {
 		logMessage(methodSource + "Error executing query to check whether user exists.Desc: " + err.Error())
 		return false, result
@@ -80,7 +76,6 @@ func userLoginExists(json map[string]string) (bool, *Model.User) {
 	}
 	return true, result
 }
-
 func userExists(json map[string]string) (bool, string, int64, bool) {
 	methodSource := " MethodSource : userExists."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")

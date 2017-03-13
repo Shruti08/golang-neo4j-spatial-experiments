@@ -1,5 +1,4 @@
 package controllers
-
 import (
 	"github.com/satori/go.uuid"
 	"net/http"
@@ -47,8 +46,6 @@ func CreateUser(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, response)
 }
-
-
 func CreateAddInterests(c echo.Context) error {
 	methodSource := " MethodSource : createAddInterests."
 	user, parsed := parseJsonInterests(c)
@@ -58,7 +55,6 @@ func CreateAddInterests(c echo.Context) error {
 	if (!parsed) {
 		logMessage(methodSource + "Error Parsing User Interest JSON.")
 	}
-
 	for _, interest := range user.Interests {
 		created := createInterestNode(interest)
 		if (!created) {
@@ -68,7 +64,7 @@ func CreateAddInterests(c echo.Context) error {
 			success = false
 
 		}
-		added := createInterestRelationship(user.Uid, interest)
+		added := addUserInterests(user.Uid, interest)
 		if (!added) {
 			logMessage(methodSource + "Error Adding Relationship.")
 			statusCode = 201
@@ -85,16 +81,65 @@ func CreateAddInterests(c echo.Context) error {
 	response.Message = message
 	return c.JSON(http.StatusOK, response)
 }
-func AcceptConnection(c echo.Context) {
+func AcceptConnectionRequest(c echo.Context)error {
+	methodSource := "MethodSource : AcceptConnRequest."
+	jsonBody, errParse := parseJson(c)
+	var message =""
+	var statusCode = int64(200)
+	var success = true
+	response := new(Model.SingleUserResponse)
+	if !errParse {
+		logMessage(methodSource + "Error Parsing Request.")
+		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
+	}
+	connExists,methodSuccess := checkConnectionRequest(jsonBody["uid1"],jsonBody["uid2"])
+	if !methodSuccess{
+		message+="Error checking for connection request."
+		statusCode=int64(900)
+		success=false
 
+	}else if connExists{
+		if !connectUsers(jsonBody["uid1"],jsonBody["uid2"]){
+			message+="Error creating connection link."
+			statusCode=int64(900)
+			success=false
+		}
+	}else{
+		message+="Connection Request not found"
+		statusCode=int64(900)
+		success=false
+	}
+	response.Message=message
+	response.Success=success
+	response.StatusCode=statusCode
+	return c.JSON(http.StatusOK,response)
+}
+func SendConnectionRequest(c echo.Context) error{
+	methodSource := "MethodSource : SendConnRequest."
+	jsonBody, errParse := parseJson(c)
+	var message =""
+	var statusCode = int64(200)
+	var success = true
+	response := new(Model.SingleUserResponse)
+	if !errParse {
+		logMessage(methodSource + "Error Parsing Request.")
+		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
+	}
+	requestSent := createConnectionRequest(jsonBody["uid1"],jsonBody["uid2"])
+	if !requestSent{
+		success=false
+		message+="Unable to send Request."
+		statusCode=900
+	}
+	response.StatusCode=statusCode
+	response.Message=message
+	response.Success=success
+	return c.JSON(http.StatusOK,response)
+}
+func BlockUser(c echo.Context)error{
+	return c.JSON(http.StatusOK,"")
 
 }
-func sendRequest(c echo.Context){
-
-}
-func blockUser(c echo.Context){
-
-}
-func unBlockUser(c echo.Context){
-
+func UnBlockUser(c echo.Context)error{
+return c.JSON(http.StatusOK,"")
 }
