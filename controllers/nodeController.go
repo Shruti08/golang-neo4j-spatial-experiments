@@ -49,7 +49,7 @@ func createUserNode(jsonBody map[string]string) bool {
 	defer stmt.Close()
 	_, errExec := stmt.Exec(jsonBody, jsonBody["uid"], jsonBody["uid"])
 	if errExec != nil {
-		logMessage(methodSource + "Error executing query for user creation.Desc: " + err.Error())
+		logMessage(methodSource + "Error executing query for user creation.Desc: " + errExec.Error())
 		return false
 	}
 	return true

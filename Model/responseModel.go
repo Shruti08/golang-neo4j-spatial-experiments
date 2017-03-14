@@ -1,6 +1,6 @@
 package Model
 
-type SingleUserResponse struct {
+type StandardResponse struct {
 	StatusCode int64 `json:"statusCode"`
 	Success    bool `json:"success"`
 	Message    string `json:"message"`

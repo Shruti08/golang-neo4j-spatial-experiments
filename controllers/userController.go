@@ -1,9 +1,11 @@
 package controllers
+
 import (
 	"database/sql"
 	"github.com/labstack/gommon/log"
 	"realworld/Model"
 )
+
 func userLoginExists(json map[string]string) (bool, *Model.User) {
 	result := new(Model.User)
 	methodSource := " MethodSource : userLoginExists."

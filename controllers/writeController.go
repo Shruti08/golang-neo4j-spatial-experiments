@@ -1,4 +1,5 @@
 package controllers
+
 import (
 	"github.com/satori/go.uuid"
 	"net/http"
@@ -6,6 +7,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/labstack/echo"
 )
+
 func CreateUser(c echo.Context) error {
 	methodSource := "MethodSource : CreateUser."
 	jsonBody, errParse := parseJson(c)
@@ -33,9 +35,9 @@ func CreateUser(c echo.Context) error {
 			logMessage("NODE CREATION FAILED")
 			return c.JSON(http.StatusInternalServerError, jsonBody)
 		}
-		logMessage(methodSource+"NEW ID " + u2.String())
+		logMessage(methodSource + "NEW ID " + u2.String())
 	}
-	response := new(Model.SingleUserResponse)
+	response := new(Model.StandardResponse)
 	response.StatusCode = statusCode
 	response.Success = success
 	response.Message = message
@@ -75,71 +77,73 @@ func CreateAddInterests(c echo.Context) error {
 	if message == "" {
 		message = "Successfully added Interests !!!"
 	}
-	response := new(Model.SingleUserResponse)
+	response := new(Model.StandardResponse)
 	response.StatusCode = statusCode
 	response.Success = success
 	response.Message = message
 	return c.JSON(http.StatusOK, response)
 }
-func AcceptConnectionRequest(c echo.Context)error {
+func AcceptConnectionRequest(c echo.Context) error {
 	methodSource := "MethodSource : AcceptConnRequest."
 	jsonBody, errParse := parseJson(c)
-	var message =""
+	var message = ""
 	var statusCode = int64(200)
 	var success = true
-	response := new(Model.SingleUserResponse)
+	response := new(Model.StandardResponse)
 	if !errParse {
 		logMessage(methodSource + "Error Parsing Request.")
 		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
 	}
-	connExists,methodSuccess := checkConnectionRequest(jsonBody["uid1"],jsonBody["uid2"])
-	if !methodSuccess{
-		message+="Error checking for connection request."
-		statusCode=int64(900)
-		success=false
+	connExists, methodSuccess := checkConnectionRequest(jsonBody["uid1"], jsonBody["uid2"])
+	if !methodSuccess {
+		message += "Error checking for connection request."
+		statusCode = int64(900)
+		success = false
 
-	}else if connExists{
-		if !connectUsers(jsonBody["uid1"],jsonBody["uid2"]){
-			message+="Error creating connection link."
-			statusCode=int64(900)
-			success=false
+	} else if connExists {
+		if !connectUsers(jsonBody["uid1"], jsonBody["uid2"]) {
+			message += "Error creating connection link."
+			statusCode = int64(900)
+			success = false
+		} else {
+			message += "Successfully connected users."
 		}
-	}else{
-		message+="Connection Request not found"
-		statusCode=int64(900)
-		success=false
+	} else {
+		message += "Connection Request not found"
+		statusCode = int64(900)
+		success = false
 	}
-	response.Message=message
-	response.Success=success
-	response.StatusCode=statusCode
-	return c.JSON(http.StatusOK,response)
+	response.Message = message
+	response.Success = success
+	response.StatusCode = statusCode
+	return c.JSON(http.StatusOK, response)
 }
-func SendConnectionRequest(c echo.Context) error{
+func SendConnectionRequest(c echo.Context) error {
 	methodSource := "MethodSource : SendConnRequest."
 	jsonBody, errParse := parseJson(c)
-	var message =""
+	var message = ""
 	var statusCode = int64(200)
 	var success = true
-	response := new(Model.SingleUserResponse)
+	response := new(Model.StandardResponse)
 	if !errParse {
 		logMessage(methodSource + "Error Parsing Request.")
 		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
 	}
-	requestSent := createConnectionRequest(jsonBody["uid1"],jsonBody["uid2"])
-	if !requestSent{
-		success=false
-		message+="Unable to send Request."
-		statusCode=900
+	requestSent := createConnectionRequest(jsonBody["uid1"], jsonBody["uid2"])
+	if !requestSent {
+		success = false
+		message += "Unable to send Request."
+		statusCode = 900
 	}
-	response.StatusCode=statusCode
-	response.Message=message
-	response.Success=success
-	return c.JSON(http.StatusOK,response)
+	response.StatusCode = statusCode
+	response.Message = message
+	response.Success = success
+	return c.JSON(http.StatusOK, response)
 }
-func BlockUser(c echo.Context)error{
-	return c.JSON(http.StatusOK,"")
+func BlockUser(c echo.Context) error {
+	return c.JSON(http.StatusOK, "")
 
 }
-func UnBlockUser(c echo.Context)error{
-return c.JSON(http.StatusOK,"")
+func UnBlockUser(c echo.Context) error {
+	return c.JSON(http.StatusOK, "")
 }

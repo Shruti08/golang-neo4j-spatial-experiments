@@ -17,3 +17,13 @@ type User struct {
 	DeviceToken    string `json:"deviceToken"`
 	MobileNo       string `json:"mobileNo"`
 }
+
+type SimilarUser struct {
+	Name           string `json:"name"`
+	Uid            string `json:"uid"`
+	Gender         string `json:"Gender"`
+	ProfilePicture string `json:"profilePicture"`
+	Age            string `json:"age"`
+	CreatedOn      string `json:"createdOn"`
+	Connected      string `json:"connected"`
+}
