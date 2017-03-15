@@ -41,7 +41,7 @@ func getUserInterest(uid string) (bool, Model.UserInterest) {
 	return true, *userInterests
 }
 
-func findSimilarUsers(uid string, lat float64, lon float64, skip int64, limit int64) (bool,[]Model.SimilarUser) {
+func findSimilarUsers(uid string, lat float64, lon float64, skip int64, limit int64) (bool, []Model.SimilarUser) {
 	methodSource := "MethodSource : findSimilarUsers."
 	var similarUsers []Model.SimilarUser
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
@@ -51,7 +51,7 @@ func findSimilarUsers(uid string, lat float64, lon float64, skip int64, limit in
 		return false, similarUsers
 	}
 	defer db.Close()
-        log.Print(uid,"#",lat,"#",lon,"#",skip,"#",limit)
+	log.Print(uid, "#", lat, "#", lon, "#", skip, "#", limit)
 	stmt, err := db.Prepare(`
 				CALL spatial.withinDistance("geoLocation",{lat:{0},lon:{1}},7)
 				YIELD node
@@ -68,33 +68,35 @@ func findSimilarUsers(uid string, lat float64, lon float64, skip int64, limit in
 				SKIP {4}
 				LIMIT {5}
 				`)
+
 	if err != nil {
 		logMessage(methodSource + "Error Preparing Query.Desc: " + err.Error())
 		return false, similarUsers
 	}
-	rows, errExec := stmt.Query(lat,lon,uid,uid,skip,limit)
+	rows, errExec := stmt.Query(lat, lon, uid, uid, skip, limit)
+
 	if errExec != nil {
 		logMessage(methodSource + "Error executing query for findig similar users.Desc: " + errExec.Error())
-		return false,similarUsers
+		return false, similarUsers
 	}
-	for rows.Next(){
+	for rows.Next() {
 		user := new(Model.SimilarUser)
 		errScanner := rows.Scan(&user.Uid,
-					&user.Name,
-					&user.Gender,
-					&user.ProfilePicture,
-					&user.Age,
-					&user.CreatedOn,
-					&user.Connected )
+			&user.Name,
+			&user.Gender,
+			&user.ProfilePicture,
+			&user.Age,
+			&user.CreatedOn,
+			&user.Connected)
 		if errScanner != nil {
 			logMessage(methodSource + "Error Checking for Similar Users.Desc: " + errScanner.Error())
 			return false, similarUsers
 		}
 		log.Print(user)
-		similarUsers = append(similarUsers,*user)
+		similarUsers = append(similarUsers, *user)
 
 	}
 	defer stmt.Close()
-	return  true,similarUsers
+	return true, similarUsers
 
 }

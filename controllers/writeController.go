@@ -13,8 +13,13 @@ func CreateUser(c echo.Context) error {
 	jsonBody, errParse := parseJson(c)
 	var message string
 	success := true
+	response := new(Model.StandardResponse)
 	if !errParse {
-		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
+		response.StatusCode = 900
+		response.Message = "Failed to parse request. Invalid JSON"
+		response.Success = false
+		logMessage(methodSource + "Error Parsing Request.")
+		return c.JSON(http.StatusOK, response)
 	}
 	exists, field, statusCode, methodSuccess := userExists(jsonBody)
 	if !methodSuccess {
@@ -33,11 +38,13 @@ func CreateUser(c echo.Context) error {
 			logMessage(message)
 		} else {
 			logMessage("NODE CREATION FAILED")
-			return c.JSON(http.StatusInternalServerError, jsonBody)
+			statusCode = 900
+			success = false
+			message = "Node Creation Failed.Invalid or Null values passed."
 		}
 		logMessage(methodSource + "NEW ID " + u2.String())
 	}
-	response := new(Model.StandardResponse)
+
 	response.StatusCode = statusCode
 	response.Success = success
 	response.Message = message
@@ -54,8 +61,13 @@ func CreateAddInterests(c echo.Context) error {
 	message := ""
 	statusCode := int64(200)
 	success := true
+	response := new(Model.StandardResponse)
 	if (!parsed) {
-		logMessage(methodSource + "Error Parsing User Interest JSON.")
+		response.StatusCode = 900
+		response.Message = "Failed to parse request. Invalid JSON"
+		response.Success = false
+		logMessage(methodSource + "Error Parsing Request.")
+		return c.JSON(http.StatusOK, response)
 	}
 	for _, interest := range user.Interests {
 		created := createInterestNode(interest)
@@ -77,7 +89,6 @@ func CreateAddInterests(c echo.Context) error {
 	if message == "" {
 		message = "Successfully added Interests !!!"
 	}
-	response := new(Model.StandardResponse)
 	response.StatusCode = statusCode
 	response.Success = success
 	response.Message = message
@@ -91,8 +102,11 @@ func AcceptConnectionRequest(c echo.Context) error {
 	var success = true
 	response := new(Model.StandardResponse)
 	if !errParse {
+		response.StatusCode = 900
+		response.Message = "Failed to parse request. Invalid JSON"
+		response.Success = false
 		logMessage(methodSource + "Error Parsing Request.")
-		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
+		return c.JSON(http.StatusOK, response)
 	}
 	connExists, methodSuccess := checkConnectionRequest(jsonBody["uid1"], jsonBody["uid2"])
 	if !methodSuccess {
@@ -126,8 +140,11 @@ func SendConnectionRequest(c echo.Context) error {
 	var success = true
 	response := new(Model.StandardResponse)
 	if !errParse {
+		response.StatusCode = 900
+		response.Message = "Failed to parse request. Invalid JSON"
+		response.Success = false
 		logMessage(methodSource + "Error Parsing Request.")
-		return c.JSON(http.StatusBadRequest, "Failed To Parse Request")
+		return c.JSON(http.StatusOK, response)
 	}
 	requestSent := createConnectionRequest(jsonBody["uid1"], jsonBody["uid2"])
 	if !requestSent {

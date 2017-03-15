@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 	"github.com/labstack/echo"
-	_ "gopkg.in/cq.v1"
 	"realworld/controllers"
+	_ "gopkg.in/cq.v1"
 )
 
 func main() {
@@ -20,6 +20,6 @@ func main() {
 	e.POST("/acceptConnectionReq", controllers.AcceptConnectionRequest)
 	e.POST("/blockUser", controllers.BlockUser)
 	e.POST("/unblockUser", controllers.UnBlockUser)
-	e.POST("/getSimilarUsers",controllers.FetchSimilarUsers)
+	e.POST("/getSimilarUsers", controllers.FetchSimilarUsers)
 	e.Logger.Fatal(e.Start(":8000"))
 }
