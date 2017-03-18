@@ -10,11 +10,13 @@ import (
 	_"image/png"
 	_ "image/jpeg"
 	_ "image/gif"
+	"time"
 )
 
 func logMessage(logMsg string) {
 	log.Printf(logMsg)
 }
+
 func parseJsonInterests(c echo.Context) (Model.UserInterest, bool) {
 	methodSource := " MethodSource : parseJsonInterests."
 	s, errRead := ioutil.ReadAll(c.Request().Body)
@@ -50,15 +52,22 @@ func parseJson(c echo.Context) (map[string]string, bool) {
 	return jsonBody, true
 }
 
-func saveImage(uid string,image64 string)bool{
-	imgData,err := base64.StdEncoding.DecodeString(image64)
-	if err != nil{
-		logMessage("Error Decoding base64 Image. Exception:"+err.Error() )
+func saveImage(uid string, image64 string) bool {
+	imgData, err := base64.StdEncoding.DecodeString(image64)
+	if err != nil {
+		logMessage("Error Decoding base64 Image. Exception:" + err.Error())
 		return false
 	}
-	err = ioutil.WriteFile(uid+".png",imgData,0644)
-	if err!=nil{
-		logMessage("Error Writing to file.Exception: "+err.Error())
+	err = ioutil.WriteFile(uid + ".png", imgData, 0644)
+	if err != nil {
+		logMessage("Error Writing to file.Exception: " + err.Error())
 	}
 	return true
+}
+
+func relationshipProperty() map[string]string {
+	var properties map[string]string
+	properties = make(map[string]string)
+	properties["createdOn"] = time.Now().String()
+	return properties
 }

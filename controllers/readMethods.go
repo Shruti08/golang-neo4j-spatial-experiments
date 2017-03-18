@@ -1,11 +1,10 @@
 package controllers
 
 import (
-	"github.com/labstack/echo"
 	"net/http"
+	"github.com/labstack/echo"
 	"realworld/Model"
 	"strconv"
-
 )
 
 func CheckUserLogin(c echo.Context) error {
@@ -32,6 +31,7 @@ func CheckUserLogin(c echo.Context) error {
 	response.Success = true
 	return c.JSON(http.StatusOK, response)
 }
+
 func FetchInterests(c echo.Context) error {
 	methodSource := "MethodSource : fetchInterests."
 	jsonBody, errParse := parseJson(c)
@@ -94,11 +94,17 @@ func FetchSimilarUsers(c echo.Context) error {
 	response.Success = success
 	return c.JSON(http.StatusOK, response)
 }
-func GetProfilePic(c echo.Context)error{
-	id := c.Param("imageID")
-	return c.File(id+".png")
-}
-func FetchBuddies(c echo.Context)error{
 
-	return c.JSON(http.StatusOK,"Done")
+func GetProfilePic(c echo.Context) error {
+	id := c.Param("imageID")
+	return c.File(id + ".png")
 }
+
+func FetchBuddies(c echo.Context) error {
+	return c.JSON(http.StatusOK, "Done")
+}
+
+func FetchBlockeduser(c echo.Context) error {
+	return c.JSON(http.StatusOK, "Done")
+}
+

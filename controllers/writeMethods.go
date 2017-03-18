@@ -34,13 +34,13 @@ func CreateUser(c echo.Context) error {
 	} else {
 		u2 := uuid.NewV4()
 		jsonBody["uid"] = u2.String()
-		jsonBody["createdOn"] ,jsonBody["lastUpdateOn"] = time.Now().String(),time.Now().String()
-		picSave := saveImage(u2.String(),jsonBody["pic"])
-		if(!picSave){
-			logMessage("Error saving profile picture for "+u2.String())
+		jsonBody["createdOn"], jsonBody["lastUpdateOn"] = time.Now().String(), time.Now().String()
+		picSave := saveImage(u2.String(), jsonBody["pic"])
+		if (!picSave) {
+			logMessage("Error saving profile picture for " + u2.String())
 
 		}
-		jsonBody["pic"]="/profilePics/"+u2.String()+".png"
+		jsonBody["pic"] = "/profilePics/" + u2.String() + ".png"
 		if createUserNode(jsonBody) {
 			message += "User Created Successfully !"
 			logMessage(message)
@@ -52,7 +52,6 @@ func CreateUser(c echo.Context) error {
 		}
 		logMessage(methodSource + "NEW ID " + u2.String())
 	}
-
 	response.StatusCode = statusCode
 	response.Success = success
 	response.Message = message
@@ -63,6 +62,7 @@ func CreateUser(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, response)
 }
+
 func CreateAddInterests(c echo.Context) error {
 	methodSource := " MethodSource : createAddInterests."
 	user, parsed := parseJsonInterests(c)
@@ -102,6 +102,7 @@ func CreateAddInterests(c echo.Context) error {
 	response.Message = message
 	return c.JSON(http.StatusOK, response)
 }
+
 func AcceptConnectionRequest(c echo.Context) error {
 	methodSource := "MethodSource : AcceptConnRequest."
 	jsonBody, errParse := parseJson(c)
@@ -140,6 +141,7 @@ func AcceptConnectionRequest(c echo.Context) error {
 	response.StatusCode = statusCode
 	return c.JSON(http.StatusOK, response)
 }
+
 func SendConnectionRequest(c echo.Context) error {
 	methodSource := "MethodSource : SendConnRequest."
 	jsonBody, errParse := parseJson(c)
@@ -165,6 +167,7 @@ func SendConnectionRequest(c echo.Context) error {
 	response.Success = success
 	return c.JSON(http.StatusOK, response)
 }
+
 func BlockUser(c echo.Context) error {
 	methodSource := "MethodSource : BlockUser."
 	jsonBody, errParse := parseJson(c)
@@ -190,6 +193,7 @@ func BlockUser(c echo.Context) error {
 	response.Success = success
 	return c.JSON(http.StatusOK, response)
 }
+
 func UnBlockUser(c echo.Context) error {
 	methodSource := "MethodSource : UnBlockUser."
 	jsonBody, errParse := parseJson(c)

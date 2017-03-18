@@ -6,6 +6,30 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
+func createInterestNode(interest string) bool {
+	methodSource := " MethodSource : createInterestNode."
+	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	err = db.Ping()
+	if err != nil {
+		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
+		return false
+	}
+	defer db.Close()
+	stmt, err := db.Prepare(`MERGE (n:Interest {name:{0}} );`)
+	if err != nil {
+		logMessage(methodSource + "Error Preparing Query.Desc: " + err.Error())
+		return false
+	}
+	defer stmt.Close()
+	_, errExec := stmt.Exec(interest)
+	if errExec != nil {
+
+		logMessage(methodSource + "Error executing query for Interest creation.Desc: " + errExec.Error())
+		return false
+	}
+	return true
+}
+
 func getUserInterest(uid string) (bool, Model.UserInterest) {
 	methodSource := "MethodSource : fetchInterests."
 	userInterests := new(Model.UserInterest)
@@ -18,7 +42,6 @@ func getUserInterest(uid string) (bool, Model.UserInterest) {
 		return false, *userInterests
 	}
 	defer db.Close()
-
 	stmt, err := db.Prepare(`MATCH (n:User{uid:{0}})-[:LIKES]->(i:Interest)
 				RETURN i.name`)
 	if err != nil {
@@ -26,9 +49,7 @@ func getUserInterest(uid string) (bool, Model.UserInterest) {
 		return false, *userInterests
 	}
 	defer stmt.Close()
-
 	rows, err := stmt.Query(uid)
-
 	for rows.Next() {
 		errScanner := rows.Scan(&interest)
 		if errScanner != nil {
@@ -39,6 +60,32 @@ func getUserInterest(uid string) (bool, Model.UserInterest) {
 	}
 	userInterests.Uid = uid
 	return true, *userInterests
+}
+
+func addUserInterests(uid string, interest string) bool {
+	methodSource := "MethodSource : addUserInterests."
+	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	err = db.Ping()
+	if err != nil {
+		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
+		return false
+	}
+	defer db.Close()
+	stmt, err := db.Prepare(`MATCH (n:User {uid:{0}}),(i:Interest{name:{1}})
+	                         MERGE (n)-[r:LIKES]->(i)
+	                         SET r={2}
+				 `)
+	if err != nil {
+		logMessage(methodSource + "Error Preparing Query.Desc: " + err.Error())
+		return false
+	}
+	defer stmt.Close()
+	_, errExec := stmt.Exec(uid, interest, relationshipProperty())
+	if errExec != nil {
+		logMessage(methodSource + "Error executing query for Interest creation.Desc: " + errExec.Error())
+		return false
+	}
+	return true
 }
 
 func findSimilarUsers(uid string, lat float64, lon float64, skip int64, limit int64) (bool, []Model.SimilarUser) {
@@ -68,13 +115,11 @@ func findSimilarUsers(uid string, lat float64, lon float64, skip int64, limit in
 				SKIP {4}
 				LIMIT {5}
 				`)
-
 	if err != nil {
 		logMessage(methodSource + "Error Preparing Query.Desc: " + err.Error())
 		return false, similarUsers
 	}
 	rows, errExec := stmt.Query(lat, lon, uid, uid, skip, limit)
-
 	if errExec != nil {
 		logMessage(methodSource + "Error executing query for findig similar users.Desc: " + errExec.Error())
 		return false, similarUsers
@@ -98,5 +143,4 @@ func findSimilarUsers(uid string, lat float64, lon float64, skip int64, limit in
 	}
 	defer stmt.Close()
 	return true, similarUsers
-
 }

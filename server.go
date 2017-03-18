@@ -39,14 +39,15 @@ func getMeIn(c echo.Context) error {
 
 func main() {
 	e := echo.New()
-	e.GET("/profilePics/:imageID",controllers.GetProfilePic)
+	e.GET("/profilePics/:imageID", controllers.GetProfilePic)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
 	//e.POST("/letsGetIn", getMeIn)
-	r := e.Group("/api")
-	//r.Use(middleware.JWT([]byte("secret")))
 
+	r := e.Group("/api")
+
+	//r.Use(middleware.JWT([]byte("secret")))
 	r.POST("/createUser", controllers.CreateUser)
 	r.POST("/checkUserLogin", controllers.CheckUserLogin)
 	r.POST("/addUserInterests", controllers.CreateAddInterests)
