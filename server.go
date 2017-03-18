@@ -22,7 +22,7 @@ func getMeIn(c echo.Context) error {
 		claims := token.Claims.(jwt.MapClaims)
 		claims["name"] = "Jon Snow"
 		claims["admin"] = true
-		claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+		claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
 		// Generate encoded token and send it as response.
 		t, err := token.SignedString([]byte("secret"))
@@ -39,15 +39,13 @@ func getMeIn(c echo.Context) error {
 
 func main() {
 	e := echo.New()
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "HELLO FROM API")
-	})
+	e.GET("/profilePics/:imageID",controllers.GetProfilePic)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.POST("/letsGetIn", getMeIn)
+	e.Use(middleware.Gzip())
+	//e.POST("/letsGetIn", getMeIn)
 	r := e.Group("/api")
-	r.Use(middleware.JWT([]byte("secret")))
-
+	//r.Use(middleware.JWT([]byte("secret")))
 
 	r.POST("/createUser", controllers.CreateUser)
 	r.POST("/checkUserLogin", controllers.CheckUserLogin)
@@ -58,5 +56,7 @@ func main() {
 	r.POST("/blockUser", controllers.BlockUser)
 	r.POST("/unblockUser", controllers.UnBlockUser)
 	r.POST("/getSimilarUsers", controllers.FetchSimilarUsers)
+
 	e.Logger.Fatal(e.Start(":8000"))
+
 }

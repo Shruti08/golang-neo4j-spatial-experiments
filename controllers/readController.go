@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"realworld/Model"
 	"strconv"
+
 )
 
 func CheckUserLogin(c echo.Context) error {
@@ -92,5 +93,12 @@ func FetchSimilarUsers(c echo.Context) error {
 	response.Message = message
 	response.Success = success
 	return c.JSON(http.StatusOK, response)
+}
+func GetProfilePic(c echo.Context)error{
+	id := c.Param("imageID")
+	return c.File(id+".png")
+}
+func FetchBuddies(c echo.Context)error{
 
+	return c.JSON(http.StatusOK,"Done")
 }

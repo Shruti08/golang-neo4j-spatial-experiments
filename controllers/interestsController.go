@@ -62,7 +62,7 @@ func findSimilarUsers(uid string, lat float64, lon float64, skip int64, limit in
 				 	node.Gender,
 				 	node.profilePicture,
 				 	node.age,
-				 	node.lastUpdateOn AS dateTime,
+				 	node.createdOn AS dateTime,
 				 	(CASE WHEN COUNT(r)>0 THEN 1 ELSE 0 END) AS CONNECTED
 				ORDER BY dateTime  DESC
 				SKIP {4}

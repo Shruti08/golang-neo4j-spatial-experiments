@@ -2,10 +2,11 @@ package controllers
 
 import (
 	"database/sql"
+	"time"
 )
 
 func addUserInterests(uid string, interest string) bool {
-	methodSource := "MethodSource : createInterestRelationship."
+	methodSource := "MethodSource : addUserInterests."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
 	err = db.Ping()
 	if err != nil {
@@ -31,7 +32,7 @@ func addUserInterests(uid string, interest string) bool {
 }
 
 func connectUsers(uid1 string, uid2 string) bool {
-	methodSource := "MethodSource : createConnectionRelationship."
+	methodSource := "MethodSource : connectUsers."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
 	err = db.Ping()
 	if err != nil {
@@ -56,7 +57,7 @@ func connectUsers(uid1 string, uid2 string) bool {
 	return true
 }
 func createConnectionRequest(uid1 string, uid2 string) bool {
-	methodSource := "MethodSource : createRequestRealtionship."
+	methodSource := "MethodSource : createConnectionRequest."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
 	err = db.Ping()
 	if err != nil {
@@ -81,7 +82,7 @@ func createConnectionRequest(uid1 string, uid2 string) bool {
 	return true
 }
 func checkConnectionRequest(uid1 string, uid2 string) (bool, bool) {
-	methodSource := "MethodSource : checkReqRelationship."
+	methodSource := "MethodSource : checkConnectionRequest."
 	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
 	err = db.Ping()
 	if err != nil {
@@ -119,4 +120,56 @@ func checkConnectionRequest(uid1 string, uid2 string) (bool, bool) {
 	} else {
 		return true, true
 	}
+}
+
+func blockUser(uid1 string,uid2 string) bool{
+	methodSource := "MethodSource : blockUser."
+	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	err = db.Ping()
+	if err != nil {
+		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
+		return false
+	}
+	defer db.Close()
+	stmt, err := db.Prepare(`MATCH (a:User {uid:{0}}),(b:User{uid:{1}})
+				 MERGE (a)-[r:BLOCKED ]->(b)
+				 SET r={2}
+				 `)
+	if err != nil {
+		logMessage(methodSource + "Error Preparing Query.Desc: " + err.Error())
+		return false
+	}
+	defer stmt.Close()
+	_, errExec := stmt.Exec(uid1, uid2, relationshipProperty())
+	if errExec != nil {
+		logMessage(methodSource + "Error executing query for Blocking Users.Desc: " + errExec.Error())
+		return false
+	}
+	logMessage(uid1 +" blocked "+uid2+ " on "+time.Now().String())
+	return true
+}
+func unblockUser(uid1 string,uid2 string)bool{
+	methodSource := "MethodSource : blockUser."
+	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	err = db.Ping()
+	if err != nil {
+		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
+		return false
+	}
+	defer db.Close()
+	stmt, err := db.Prepare(`MATCH (a:User {uid:{0}})-[r:BLOCKED]->(b:User{uid:{1}})
+				 DELETE r
+				 `)
+	if err != nil {
+		logMessage(methodSource + "Error Preparing Query.Desc: " + err.Error())
+		return false
+	}
+	defer stmt.Close()
+	_, errExec := stmt.Exec(uid1, uid2, relationshipProperty())
+	if errExec != nil {
+		logMessage(methodSource + "Error executing query for Blocking Users.Desc: " + errExec.Error())
+		return false
+	}
+	logMessage(uid1 +" unblocked "+uid2+ " on "+time.Now().String())
+	return true
 }

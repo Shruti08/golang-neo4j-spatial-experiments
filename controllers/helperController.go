@@ -6,6 +6,10 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"realworld/Model"
+	"encoding/base64"
+	_"image/png"
+	_ "image/jpeg"
+	_ "image/gif"
 )
 
 func logMessage(logMsg string) {
@@ -44,4 +48,17 @@ func parseJson(c echo.Context) (map[string]string, bool) {
 		return map[string]string{}, false
 	}
 	return jsonBody, true
+}
+
+func saveImage(uid string,image64 string)bool{
+	imgData,err := base64.StdEncoding.DecodeString(image64)
+	if err != nil{
+		logMessage("Error Decoding base64 Image. Exception:"+err.Error() )
+		return false
+	}
+	err = ioutil.WriteFile(uid+".png",imgData,0644)
+	if err!=nil{
+		logMessage("Error Writing to file.Exception: "+err.Error())
+	}
+	return true
 }

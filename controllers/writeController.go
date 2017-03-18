@@ -6,6 +6,7 @@ import (
 	"realworld/Model"
 	"github.com/mitchellh/mapstructure"
 	"github.com/labstack/echo"
+	"time"
 )
 
 func CreateUser(c echo.Context) error {
@@ -33,6 +34,13 @@ func CreateUser(c echo.Context) error {
 	} else {
 		u2 := uuid.NewV4()
 		jsonBody["uid"] = u2.String()
+		jsonBody["createdOn"] ,jsonBody["lastUpdateOn"] = time.Now().String(),time.Now().String()
+		picSave := saveImage(u2.String(),jsonBody["pic"])
+		if(!picSave){
+			logMessage("Error saving profile picture for "+u2.String())
+
+		}
+		jsonBody["pic"]="/profilePics/"+u2.String()+".png"
 		if createUserNode(jsonBody) {
 			message += "User Created Successfully !"
 			logMessage(message)
@@ -158,9 +166,52 @@ func SendConnectionRequest(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 func BlockUser(c echo.Context) error {
-	return c.JSON(http.StatusOK, "")
-
+	methodSource := "MethodSource : BlockUser."
+	jsonBody, errParse := parseJson(c)
+	var message = ""
+	var statusCode = int64(200)
+	var success = true
+	response := new(Model.StandardResponse)
+	if !errParse {
+		response.StatusCode = 900
+		response.Message = "Failed to parse request. Invalid JSON"
+		response.Success = false
+		logMessage(methodSource + "Error Parsing Request.")
+		return c.JSON(http.StatusOK, response)
+	}
+	requestSent := blockUser(jsonBody["uid1"], jsonBody["uid2"])
+	if !requestSent {
+		success = false
+		message += "Unable to block user.Internal server Error."
+		statusCode = 900
+	}
+	response.StatusCode = statusCode
+	response.Message = message
+	response.Success = success
+	return c.JSON(http.StatusOK, response)
 }
 func UnBlockUser(c echo.Context) error {
-	return c.JSON(http.StatusOK, "")
+	methodSource := "MethodSource : UnBlockUser."
+	jsonBody, errParse := parseJson(c)
+	var message = ""
+	var statusCode = int64(200)
+	var success = true
+	response := new(Model.StandardResponse)
+	if !errParse {
+		response.StatusCode = 900
+		response.Message = "Failed to parse request. Invalid JSON"
+		response.Success = false
+		logMessage(methodSource + "Error Parsing Request.")
+		return c.JSON(http.StatusOK, response)
+	}
+	requestSent := unblockUser(jsonBody["uid1"], jsonBody["uid2"])
+	if !requestSent {
+		success = false
+		message += "Unable to unblock User.Internal server error."
+		statusCode = 900
+	}
+	response.StatusCode = statusCode
+	response.Message = message
+	response.Success = success
+	return c.JSON(http.StatusOK, response)
 }
