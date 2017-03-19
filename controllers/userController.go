@@ -8,7 +8,7 @@ import (
 
 func createUserNode(jsonBody map[string]string) bool {
 	methodSource := " MethodSource : createUserNode."
-	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
@@ -37,7 +37,7 @@ func createUserNode(jsonBody map[string]string) bool {
 func userLoginExists(json map[string]string) (bool, *Model.User) {
 	result := new(Model.User)
 	methodSource := " MethodSource : userLoginExists."
-	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
@@ -109,7 +109,7 @@ func userLoginExists(json map[string]string) (bool, *Model.User) {
 
 func userExists(json map[string]string) (bool, string, int64, bool) {
 	methodSource := " MethodSource : userExists."
-	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())

@@ -8,7 +8,7 @@ import (
 
 func createInterestNode(interest string) bool {
 	methodSource := " MethodSource : createInterestNode."
-	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
@@ -35,7 +35,7 @@ func getUserInterest(uid string) (bool, Model.UserInterest) {
 	userInterests := new(Model.UserInterest)
 	userInterests.Uid = uid
 	var interest string
-	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
@@ -63,7 +63,7 @@ func getUserInterest(uid string) (bool, Model.UserInterest) {
 }
 func emptyUserInterests(uid string) bool {
 	methodSource := "MethodSource : emptyUserInterests."
-	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
@@ -88,7 +88,7 @@ func emptyUserInterests(uid string) bool {
 
 func addUserInterests(uid string, interest string) bool {
 	methodSource := "MethodSource : addUserInterests."
-	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
@@ -115,7 +115,7 @@ func addUserInterests(uid string, interest string) bool {
 func findSimilarUsers(uid string, lat float64, lon float64, skip int64, limit int64) (bool, []Model.SimilarUser) {
 	methodSource := "MethodSource : findSimilarUsers."
 	var similarUsers []Model.SimilarUser
-	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
@@ -134,6 +134,7 @@ func findSimilarUsers(uid string, lat float64, lon float64, skip int64, limit in
 				 	node.profilePicture,
 				 	node.age,
 				 	node.createdOn AS dateTime,
+				 	COLLECT(x.name),
 				 	(CASE WHEN COUNT(r)>0 THEN 1 ELSE 0 END) AS CONNECTED
 				ORDER BY dateTime  DESC
 				SKIP {4}
@@ -156,6 +157,7 @@ func findSimilarUsers(uid string, lat float64, lon float64, skip int64, limit in
 			&user.ProfilePicture,
 			&user.Age,
 			&user.CreatedOn,
+			&user.Interests,
 			&user.Connected)
 		if errScanner != nil {
 			logMessage(methodSource + "Error Checking for Similar Users.Desc: " + errScanner.Error())

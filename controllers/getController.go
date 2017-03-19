@@ -9,7 +9,7 @@ func getBlockedUsers(uid string) (bool, []Model.BlockedUser) {
 	methodSource := "MethodSource : getBlockedUsers."
 
 	var blockedUsers []Model.BlockedUser
-	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
@@ -39,7 +39,7 @@ func getBlockedUsers(uid string) (bool, []Model.BlockedUser) {
 func getUserBuddies(uid string) (bool, []Model.ConnectedUser) {
 	methodSource := "MethodSource : fetchInterests."
 	var connectedUsers []Model.ConnectedUser
-	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())

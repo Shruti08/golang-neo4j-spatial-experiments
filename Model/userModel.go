@@ -25,6 +25,7 @@ type SimilarUser struct {
 	ProfilePicture string `json:"profilePicture"`
 	Age            string `json:"age"`
 	CreatedOn      string `json:"createdOn"`
+	Interests      []string `json:"interests"`
 	Connected      string `json:"connected"`
 }
 

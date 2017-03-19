@@ -7,7 +7,7 @@ import (
 
 func connectUsers(uid1 string, uid2 string) bool {
 	methodSource := "MethodSource : connectUsers."
-	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
@@ -33,7 +33,7 @@ func connectUsers(uid1 string, uid2 string) bool {
 
 func createConnectionRequest(uid1 string, uid2 string) bool {
 	methodSource := "MethodSource : createConnectionRequest."
-	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
@@ -59,7 +59,7 @@ func createConnectionRequest(uid1 string, uid2 string) bool {
 
 func checkConnectionRequest(uid1 string, uid2 string) (bool, bool) {
 	methodSource := "MethodSource : checkConnectionRequest."
-	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
@@ -75,7 +75,6 @@ func checkConnectionRequest(uid1 string, uid2 string) (bool, bool) {
 		return false, false
 	}
 	defer stmt.Close()
-
 	rows, errExec := stmt.Query(uid1, uid2)
 	if errExec != nil {
 		logMessage(methodSource + "Error executing query for Connection creation.Desc: " + errExec.Error())
@@ -100,7 +99,7 @@ func checkConnectionRequest(uid1 string, uid2 string) (bool, bool) {
 
 func blockUser(uid1 string, uid2 string) bool {
 	methodSource := "MethodSource : blockUser."
-	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
@@ -127,7 +126,7 @@ func blockUser(uid1 string, uid2 string) bool {
 
 func unblockUser(uid1 string, uid2 string) bool {
 	methodSource := "MethodSource : blockUser."
-	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
