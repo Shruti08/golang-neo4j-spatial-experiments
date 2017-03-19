@@ -18,8 +18,8 @@ func logMessage(logMsg string) {
 }
 
 func getConnectionUrl()string{
-	return "http://realworld:434Lw0RlD932803@localhost:7474"
-	//return "http://goApi:g043alN0tv|rtualw0rld#2017$$++@http://139.59.41.212:7474"
+	//return "http://realworld:434Lw0RlD932803@localhost:7474"
+	return "http://goApi:g043alN0tv|rtualw0rld#2017$$++@10.139.80.92:7474"
 }
 func parseJsonInterests(c echo.Context) (Model.UserInterest, bool) {
 	methodSource := " MethodSource : parseJsonInterests."
