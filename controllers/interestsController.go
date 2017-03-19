@@ -127,7 +127,7 @@ func findSimilarUsers(uid string, lat float64, lon float64, skip int64, limit in
 				CALL spatial.withinDistance("geoLocation",{lat:{0},lon:{1}},7)
 				YIELD node
 				MATCH (node)-[:LIKES]->(x:Interest)<-[:LIKES]-(a:User{uid:{2}})
-				OPTIONAL MATCH(node)-[r:CONNECTED]-(a:User{uid:{3}})
+				OPTIONAL MATCH(node)-[r:CONNECTED]-(a:User{uid:{2}})
 				RETURN  node.uid,
 				 	node.name,
 				 	node.Gender,
@@ -135,16 +135,19 @@ func findSimilarUsers(uid string, lat float64, lon float64, skip int64, limit in
 				 	node.age,
 				 	node.createdOn AS dateTime,
 				 	COLLECT(x.name),
+				 	2 * 6371 * asin(sqrt(haversin(radians(node.lat - {0})) +
+				 	cos(radians(node.lat)) * cos(radians({0})) *
+				 	haversin(radians(node.lon - ({1}))))) AS dist,
 				 	(CASE WHEN COUNT(r)>0 THEN 1 ELSE 0 END) AS CONNECTED
 				ORDER BY dateTime  DESC
-				SKIP {4}
-				LIMIT {5}
+				SKIP {3}
+				LIMIT {4}
 				`)
 	if err != nil {
 		logMessage(methodSource + "Error Preparing Query.Desc: " + err.Error())
 		return false, similarUsers
 	}
-	rows, errExec := stmt.Query(lat, lon, uid, uid, skip, limit)
+	rows, errExec := stmt.Query(lat, lon, uid, skip, limit)
 	if errExec != nil {
 		logMessage(methodSource + "Error executing query for findig similar users.Desc: " + errExec.Error())
 		return false, similarUsers
@@ -158,6 +161,7 @@ func findSimilarUsers(uid string, lat float64, lon float64, skip int64, limit in
 			&user.Age,
 			&user.CreatedOn,
 			&user.Interests,
+			&user.Distance,
 			&user.Connected)
 		if errScanner != nil {
 			logMessage(methodSource + "Error Checking for Similar Users.Desc: " + errScanner.Error())

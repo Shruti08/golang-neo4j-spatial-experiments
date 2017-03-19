@@ -26,6 +26,7 @@ type SimilarUser struct {
 	Age            string `json:"age"`
 	CreatedOn      string `json:"createdOn"`
 	Interests      []string `json:"interests"`
+	Distance       float64	`json:"distance"` 
 	Connected      string `json:"connected"`
 }
 
