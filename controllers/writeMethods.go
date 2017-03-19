@@ -77,6 +77,13 @@ func CreateAddInterests(c echo.Context) error {
 		logMessage(methodSource + "Error Parsing Request.")
 		return c.JSON(http.StatusOK, response)
 	}
+	if !emptyUserInterests(user.Uid) {
+		response.StatusCode = 900
+		response.Message = "Failed to Clear all user interests."
+		response.Success = false
+		logMessage(methodSource + "Failed to Clear all user interests.")
+		return c.JSON(http.StatusOK, response)
+	}
 	for _, interest := range user.Interests {
 		created := createInterestNode(interest)
 		if (!created) {

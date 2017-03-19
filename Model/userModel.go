@@ -31,19 +31,12 @@ type SimilarUser struct {
 type BlockedUser struct {
 	Name           string `json:"name"`
 	Uid            string `json:"uid"`
-	Gender         string `json:"Gender"`
 	ProfilePicture string `json:"profilePicture"`
-	Age            string `json:"age"`
-	CreatedOn      string `json:"createdOn"`
-	Connected      string `json:"connected"`
 }
 
 type ConnectedUser struct {
 	Name           string `json:"name"`
 	Uid            string `json:"uid"`
-	Gender         string `json:"Gender"`
 	ProfilePicture string `json:"profilePicture"`
-	Age            string `json:"age"`
-	CreatedOn      string `json:"createdOn"`
-	Connected      string `json:"connected"`
+	Interests      []string `json:"interests"`
 }

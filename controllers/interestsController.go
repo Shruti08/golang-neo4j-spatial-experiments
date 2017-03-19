@@ -61,6 +61,30 @@ func getUserInterest(uid string) (bool, Model.UserInterest) {
 	userInterests.Uid = uid
 	return true, *userInterests
 }
+func emptyUserInterests(uid string) bool {
+	methodSource := "MethodSource : emptyUserInterests."
+	db, err := sql.Open("neo4j-cypher", "http://realworld:434Lw0RlD932803@localhost:7474")
+	err = db.Ping()
+	if err != nil {
+		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
+		return false
+	}
+	defer db.Close()
+	stmt, err := db.Prepare(`MATCH (n:User {uid:{0}})-[r:LIKES]->(i:Interest)
+	                         DELETE r
+				 `)
+	if err != nil {
+		logMessage(methodSource + "Error Preparing Query.Desc: " + err.Error())
+		return false
+	}
+	defer stmt.Close()
+	_, errExec := stmt.Exec(uid)
+	if errExec != nil {
+		logMessage(methodSource + "Error executing query for Deleting all user Interests.Desc: " + errExec.Error())
+		return false
+	}
+	return true
+}
 
 func addUserInterests(uid string, interest string) bool {
 	methodSource := "MethodSource : addUserInterests."

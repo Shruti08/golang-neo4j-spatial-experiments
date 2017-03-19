@@ -101,10 +101,56 @@ func GetProfilePic(c echo.Context) error {
 }
 
 func FetchBuddies(c echo.Context) error {
-	return c.JSON(http.StatusOK, "Done")
+	methodSource := "MethodSource : FetchBuddies."
+	jsonBody, errParse := parseJson(c)
+	var message = ""
+	var statusCode = int64(200)
+	response := new(Model.StandardResponse)
+	if !errParse {
+		response.StatusCode = 900
+		response.Message = "Failed to parse request. Invalid JSON"
+		response.Success = false
+		logMessage(methodSource + "Error Parsing Request.")
+		return c.JSON(http.StatusOK, response)
+	}
+	success, buddies := getUserBuddies(jsonBody["uid"])
+	if success {
+		message += "Fetched Buddies Successfully."
+		response.Data = buddies
+	} else {
+		message += "Failed to fetch buddies."
+		statusCode = 900
+	}
+	response.StatusCode = statusCode
+	response.Message = message
+	response.Success = success
+	return c.JSON(http.StatusOK, response)
 }
 
-func FetchBlockeduser(c echo.Context) error {
-	return c.JSON(http.StatusOK, "Done")
+func FetchBlockedusers(c echo.Context) error {
+	methodSource := "MethodSource : FetchBlockedusers."
+	jsonBody, errParse := parseJson(c)
+	var message = ""
+	var statusCode = int64(200)
+	response := new(Model.StandardResponse)
+	if !errParse {
+		response.StatusCode = 900
+		response.Message = "Failed to parse request. Invalid JSON"
+		response.Success = false
+		logMessage(methodSource + "Error Parsing Request.")
+		return c.JSON(http.StatusOK, response)
+	}
+	success, blockedUsers := getBlockedUsers(jsonBody["uid"])
+	if success {
+		message += "Fetched Blocked Users Successfully"
+		response.Data = blockedUsers
+	} else {
+		message += "Failed to fetch blocked users"
+		statusCode = 900
+	}
+	response.StatusCode = statusCode
+	response.Message = message
+	response.Success = success
+	return c.JSON(http.StatusOK, response)
 }
 

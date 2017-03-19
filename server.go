@@ -57,7 +57,8 @@ func main() {
 	r.POST("/blockUser", controllers.BlockUser)
 	r.POST("/unblockUser", controllers.UnBlockUser)
 	r.POST("/getSimilarUsers", controllers.FetchSimilarUsers)
-
+	r.POST("/getUserBuddies", controllers.FetchBuddies)
+	r.POST("/getBlockedUsers", controllers.FetchBlockedusers)
 	e.Logger.Fatal(e.Start(":8000"))
 
 }
