@@ -1,10 +1,11 @@
 package main
 
 import (
+	"golang-neo4j-spatial-experiments/controllers"
+
 	"github.com/labstack/echo"
-	"realworld/controllers"
-	_ "gopkg.in/cq.v1"
 	"github.com/labstack/echo/middleware"
+	_ "gopkg.in/cq.v1"
 )
 
 func main() {

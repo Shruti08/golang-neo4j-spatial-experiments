@@ -1,12 +1,14 @@
 package controllers
 
 import (
-	"github.com/satori/go.uuid"
 	"net/http"
-	"realworld/Model"
-	"github.com/mitchellh/mapstructure"
-	"github.com/labstack/echo"
 	"time"
+
+	"golang-neo4j-spatial-experiments/Model"
+
+	"github.com/labstack/echo"
+	"github.com/mitchellh/mapstructure"
+	"github.com/satori/go.uuid"
 )
 
 func CreateUser(c echo.Context) error {
@@ -36,7 +38,7 @@ func CreateUser(c echo.Context) error {
 		jsonBody["uid"] = u2.String()
 		jsonBody["createdOn"], jsonBody["lastUpdateOn"] = time.Now().String(), time.Now().String()
 		picSave := saveImage(u2.String(), jsonBody["pic"])
-		if (!picSave) {
+		if !picSave {
 			logMessage("Error saving profile picture for " + u2.String())
 
 		}
@@ -55,7 +57,7 @@ func CreateUser(c echo.Context) error {
 	response.StatusCode = statusCode
 	response.Success = success
 	response.Message = message
-	if (success) {
+	if success {
 		user := new(Model.User)
 		mapstructure.Decode(jsonBody, user)
 		response.Data = *user
@@ -70,7 +72,7 @@ func CreateAddInterests(c echo.Context) error {
 	statusCode := int64(200)
 	success := true
 	response := new(Model.StandardResponse)
-	if (!parsed) {
+	if !parsed {
 		response.StatusCode = 900
 		response.Message = "Failed to parse request. Invalid JSON"
 		response.Success = false
@@ -86,7 +88,7 @@ func CreateAddInterests(c echo.Context) error {
 	}
 	for _, interest := range user.Interests {
 		created := createInterestNode(interest)
-		if (!created) {
+		if !created {
 			logMessage(methodSource + "Error Creating Interest Node.")
 			statusCode = 201
 			message += "\nError Creating Interest Node :" + interest
@@ -94,7 +96,7 @@ func CreateAddInterests(c echo.Context) error {
 
 		}
 		added := addUserInterests(user.Uid, interest)
-		if (!added) {
+		if !added {
 			logMessage(methodSource + "Error Adding Relationship.")
 			statusCode = 201
 			message += "\nError Adding To Relationship :" + interest

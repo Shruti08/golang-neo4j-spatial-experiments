@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"database/sql"
+
+	"golang-neo4j-spatial-experiments/Model"
+
 	"github.com/labstack/gommon/log"
-	"realworld/Model"
 )
 
 func createUserNode(jsonBody map[string]string) bool {
@@ -136,12 +138,12 @@ func userExists(json map[string]string) (bool, string, int64, bool) {
 			return false, "", 902, false
 		}
 	}
-	if (fbid != ""&&fbid == json["fbid"]) || (gpid != ""&&gpid == json["gpid"]) {
+	if (fbid != "" && fbid == json["fbid"]) || (gpid != "" && gpid == json["gpid"]) {
 		return true, "social", 302, true
 	} else if email != "" && email == json["email"] {
 		return true, "email", 300, true
 	} else if mobileNo != "" && mobileNo == json["mobileNo"] {
 		return true, "mobileNo", 301, true
 	}
-	return false, "", 200, true;
+	return false, "", 200, true
 }

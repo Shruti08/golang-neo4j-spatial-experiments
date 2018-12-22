@@ -1,25 +1,26 @@
 package controllers
 
 import (
-	"log"
-	"github.com/labstack/echo"
-	"io/ioutil"
-	"encoding/json"
-	"realworld/Model"
 	"encoding/base64"
-	_"image/png"
-	_ "image/jpeg"
+	"encoding/json"
 	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
+	"io/ioutil"
+	"log"
 	"time"
+
+	"golang-neo4j-spatial-experiments/Model"
+
+	"github.com/labstack/echo"
 )
 
 func logMessage(logMsg string) {
 	log.Printf(logMsg)
 }
 
-func getConnectionUrl()string{
-	//return "http://realworld:434Lw0RlD932803@localhost:7474"
-	return "http://goApi:g043alN0tv|rtualw0rld#2017$$++@10.139.80.92:7474"
+func getConnectionUrl() string {
+	return "http://go-neo-experiment:gn4xperiment@localhost:7474"
 }
 func parseJsonInterests(c echo.Context) (Model.UserInterest, bool) {
 	methodSource := " MethodSource : parseJsonInterests."
@@ -62,7 +63,7 @@ func saveImage(uid string, image64 string) bool {
 		logMessage("Error Decoding base64 Image. Exception:" + err.Error())
 		return false
 	}
-	err = ioutil.WriteFile(uid + ".png", imgData, 0644)
+	err = ioutil.WriteFile(uid+".png", imgData, 0644)
 	if err != nil {
 		logMessage("Error Writing to file.Exception: " + err.Error())
 	}

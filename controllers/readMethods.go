@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"net/http"
-	"github.com/labstack/echo"
-	"realworld/Model"
 	"strconv"
+
+	"golang-neo4j-spatial-experiments/Model"
+
+	"github.com/labstack/echo"
 )
 
 func CheckUserLogin(c echo.Context) error {
@@ -153,4 +155,3 @@ func FetchBlockedusers(c echo.Context) error {
 	response.Success = success
 	return c.JSON(http.StatusOK, response)
 }
-

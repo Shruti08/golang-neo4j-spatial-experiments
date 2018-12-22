@@ -1,8 +1,10 @@
 package controllers
 
 import (
-	"realworld/Model"
 	"database/sql"
+
+	"golang-neo4j-spatial-experiments/Model"
+
 	"github.com/labstack/gommon/log"
 )
 

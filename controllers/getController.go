@@ -2,7 +2,8 @@ package controllers
 
 import (
 	"database/sql"
-	"realworld/Model"
+
+	"golang-neo4j-spatial-experiments/Model"
 )
 
 func getBlockedUsers(uid string) (bool, []Model.BlockedUser) {
