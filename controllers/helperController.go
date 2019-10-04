@@ -23,18 +23,19 @@ func getConnectionUrl() string {
 	return "http://go-neo-experiment:gn4xperiment@localhost:7474"
 }
 func parseJsonInterests(c echo.Context) (Model.UserInterest, bool) {
+	res := false
 	methodSource := " MethodSource : parseJsonInterests."
 	s, errRead := ioutil.ReadAll(c.Request().Body)
 	if errRead != nil {
 		logMessage(methodSource + "Error while reading from request.Desc: " + errRead.Error())
-		return Model.UserInterest{}, false
+		return Model.UserInterest{}, res
 	}
 	jsonBody := new(Model.UserInterest)
 
 	errParse := json.Unmarshal([]byte(s), jsonBody)
 	if errParse != nil {
 		logMessage(methodSource + "Error while Parsing to Interest Json. Desc: " + errParse.Error())
-		return *jsonBody, false
+		return *jsonBody, res
 	}
 	return *jsonBody, true
 }
