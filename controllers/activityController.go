@@ -6,12 +6,13 @@ import (
 )
 
 func connectUsers(uid1 string, uid2 string) bool {
+	res := false
 	methodSource := "MethodSource : connectUsers."
 	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
-		return false
+		return res
 	}
 	defer db.Close()
 	stmt, err := db.Prepare(`MATCH (a:User {uid:{0}}),(b:User{uid:{1}})
@@ -20,13 +21,13 @@ func connectUsers(uid1 string, uid2 string) bool {
 				 `)
 	if err != nil {
 		logMessage(methodSource + "Error Preparing Query.Desc: " + err.Error())
-		return false
+		return res
 	}
 	defer stmt.Close()
 	_, errExec := stmt.Exec(uid1, uid2, relationshipProperty())
 	if errExec != nil {
 		logMessage(methodSource + "Error executing query for Connection creation.Desc: " + errExec.Error())
-		return false
+		return res
 	}
 	return true
 }
