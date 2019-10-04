@@ -9,25 +9,26 @@ import (
 )
 
 func createInterestNode(interest string) bool {
+	res := false
 	methodSource := " MethodSource : createInterestNode."
 	db, err := sql.Open("neo4j-cypher", getConnectionUrl())
 	err = db.Ping()
 	if err != nil {
 		logMessage(methodSource + "Failed to Establish Connection. Desc: " + err.Error())
-		return false
+		return res
 	}
 	defer db.Close()
 	stmt, err := db.Prepare(`MERGE (n:Interest {name:{0}} );`)
 	if err != nil {
 		logMessage(methodSource + "Error Preparing Query.Desc: " + err.Error())
-		return false
+		return res
 	}
 	defer stmt.Close()
 	_, errExec := stmt.Exec(interest)
 	if errExec != nil {
 
 		logMessage(methodSource + "Error executing query for Interest creation.Desc: " + errExec.Error())
-		return false
+		return res
 	}
 	return true
 }
